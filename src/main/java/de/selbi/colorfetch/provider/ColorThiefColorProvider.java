@@ -3,18 +3,11 @@ package de.selbi.colorfetch.provider;
 import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.net.URL;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Optional;
-import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Component;
-
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
 
 import de.androidpit.colorthief.ColorThief;
 import de.androidpit.colorthief.MMCQ.VBox;
@@ -30,7 +23,6 @@ import de.selbi.colorfetch.util.ColorUtil;
  */
 @Component
 public class ColorThiefColorProvider implements ColorProvider {
-
   private static final int PALETTE_SAMPLE_SIZE = 10;
   private static final int PALETTE_SAMPLE_QUALITY = 5;
   private static final double MIN_BRIGHTNESS = 0.075;
@@ -39,41 +31,8 @@ public class ColorThiefColorProvider implements ColorProvider {
   private static final int MIN_COLORED_PIXELS = 3000;
   private static final int BRIGHTNESS_CALCULATION_STEP_DIVIDER = 20;
 
-  private final LoadingCache<String, Optional<ColorFetchResult>> cachedDominantColorsForUrl;
-
-  public ColorThiefColorProvider() {
-    this.cachedDominantColorsForUrl = CacheBuilder.newBuilder()
-        .build(CacheLoader.from((imageUrl) -> {
-          try {
-            ColorFetchResult colors = getDominantColors(imageUrl);
-            ColorUtil.normalizeAllForReadability(colors);
-            return Optional.of(colors);
-          } catch (IOException e) {
-            return Optional.empty();
-          }
-        }));
-  }
-
   @Override
-  public ColorFetchResult getDominantColorFromImageUrl(URL imageUrl) throws IOException {
-    if (imageUrl != null) {
-      try {
-        Optional<ColorFetchResult> colorFetchResult = cachedDominantColorsForUrl.get(imageUrl.toString());
-        if (colorFetchResult.isPresent()) {
-          return colorFetchResult.get();
-        } else {
-          throw new IOException("Unable to parse image");
-        }
-      } catch (ExecutionException e) {
-        e.printStackTrace();
-      }
-    }
-    return ColorFetchResult.FALLBACK;
-  }
-
-  private ColorFetchResult getDominantColors(String imageUrl) throws IOException {
-    BufferedImage img = getBufferedImage(imageUrl);
-
+  public ColorFetchResult getColorFetchResultFromBufferedImage(BufferedImage img) throws IOException {
     List<VBox> vBoxes = ColorThief.getColorMap(img, PALETTE_SAMPLE_SIZE, PALETTE_SAMPLE_QUALITY, true).vboxes.stream()
         .filter(this::isValidVbox)
         .sorted(Comparator.comparingInt(this::calculateWeightedPopulation).reversed())

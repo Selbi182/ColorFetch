@@ -1,10 +1,8 @@
 package de.selbi.colorfetch;
 
 import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.URI;
-import java.net.URL;
 import java.util.Optional;
+import java.util.concurrent.ExecutionException;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,45 +11,39 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import de.selbi.colorfetch.cache.ColorCacheKey;
+import de.selbi.colorfetch.cache.ColorResultCache;
 import de.selbi.colorfetch.data.ColorFetchResult;
-import de.selbi.colorfetch.provider.AndroidPaletteColorProvider;
-import de.selbi.colorfetch.provider.ColorProvider;
-import de.selbi.colorfetch.provider.ColorThiefColorProvider;
 
 @RestController
 public class ColorFetchController {
-  private final ColorThiefColorProvider colorThiefColorProvider;
-  private final AndroidPaletteColorProvider androidPaletteColorProvider;
+  private final ColorResultCache colorResultCache;
 
-  ColorFetchController(ColorThiefColorProvider colorThiefColorProvider, AndroidPaletteColorProvider androidPaletteColorProvider) {
-    this.colorThiefColorProvider = colorThiefColorProvider;
-    this.androidPaletteColorProvider = androidPaletteColorProvider;
+  ColorFetchController(ColorResultCache colorResultCache) {
+    this.colorResultCache = colorResultCache;
   }
 
   @GetMapping("/color")
-  public ResponseEntity<ColorFetchResult> getColorForImageUrl(@RequestParam String url, @RequestParam(defaultValue = "color_thief") String strategy) throws IllegalArgumentException, IOException {
-    ColorProvider colorProvider;
+  public ResponseEntity<ColorFetchResult> getColorForImageUrl(
+      @RequestParam String url,
+      @RequestParam(defaultValue = "color_thief") String strategy,
+      @RequestParam(defaultValue = "true") boolean normalize)
+      throws IllegalArgumentException, ExecutionException {
+    ColorCacheKey.Strategy strategyEnumValue;
     switch (strategy) {
       case "color_thief":
-        colorProvider = colorThiefColorProvider;
+        strategyEnumValue = ColorCacheKey.Strategy.COLOR_THIEF;
         break;
       case "android_palette":
-        colorProvider = androidPaletteColorProvider;
+        strategyEnumValue = ColorCacheKey.Strategy.ANDROID_PALETTE;
         break;
       default:
         throw new IllegalArgumentException(strategy + " is an invalid strategy. Allowed strategies are: color_thief, android_palette");
     }
 
-    URL parsedUrl = URI.create(url).toURL();
-    HttpURLConnection urlConnection = (HttpURLConnection) parsedUrl.openConnection();
-    int responseCode = urlConnection.getResponseCode();
-    if (HttpURLConnection.HTTP_OK == responseCode) {
-      ColorFetchResult colorFetchResult = colorProvider.getDominantColorFromImageUrl(parsedUrl);
-      return ResponseEntity.of(Optional.of(colorFetchResult));
-    } else {
-      throw new IOException("Unable to open input stream to URL");
-    }
-
+    ColorCacheKey colorCacheKey = ColorCacheKey.of(url, strategyEnumValue, normalize);
+    ColorFetchResult colorFetchResult = colorResultCache.getColor(colorCacheKey);
+    return ResponseEntity.of(Optional.of(colorFetchResult));
   }
 
   @ExceptionHandler(IOException.class)

@@ -2,18 +2,11 @@ package de.selbi.colorfetch.provider;
 
 import java.awt.Color;
 import java.awt.image.BufferedImage;
-import java.io.IOException;
-import java.net.URL;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
-import java.util.concurrent.ExecutionException;
 
 import org.springframework.stereotype.Component;
 
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
 import com.trickl.palette.Palette;
 import com.trickl.palette.Palette.Swatch;
 import com.trickl.palette.Target;
@@ -32,45 +25,11 @@ import de.selbi.colorfetch.util.ColorUtil;
  */
 @Component
 public class AndroidPaletteColorProvider implements ColorProvider {
-
   private static final double MIN_BRIGHTNESS = 0.2;
   private static final int MIN_POPULATION = 100;
 
-  private final LoadingCache<String, Optional<ColorFetchResult>> cachedDominantColorsForUrl;
-
-  public AndroidPaletteColorProvider() {
-    this.cachedDominantColorsForUrl = CacheBuilder.newBuilder()
-        .build(CacheLoader.from((imageUrl) -> {
-          try {
-            ColorFetchResult colors = getDominantColors(imageUrl);
-            ColorUtil.normalizeAllForReadability(colors);
-            return Optional.of(colors);
-          } catch (IOException e) {
-            return Optional.empty();
-          }
-        }));
-  }
-
   @Override
-  public ColorFetchResult getDominantColorFromImageUrl(URL imageUrl) {
-    if (imageUrl != null) {
-      try {
-        Optional<ColorFetchResult> colorFetchResult = cachedDominantColorsForUrl.get(imageUrl.toString());
-        if (colorFetchResult.isPresent()) {
-          return colorFetchResult.get();
-        } else {
-          throw new IOException("Unable to parse image");
-        }
-      } catch (ExecutionException | IOException e) {
-        e.printStackTrace();
-      }
-    }
-    return ColorFetchResult.FALLBACK;
-  }
-
-  private ColorFetchResult getDominantColors(String imageUrl) throws IOException {
-    BufferedImage img = getBufferedImage(imageUrl);
-
+  public ColorFetchResult getColorFetchResultFromBufferedImage(BufferedImage img) {
     Palette palette = Palette.from(img).generate();
     List<Color> bestSwatches = getBestSwatch(palette, false);
     return ColorFetchResult.of(bestSwatches.get(0), bestSwatches.get(1), 0.5);

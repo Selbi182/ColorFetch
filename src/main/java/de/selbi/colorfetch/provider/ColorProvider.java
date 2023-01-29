@@ -2,9 +2,6 @@ package de.selbi.colorfetch.provider;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.net.URL;
-
-import javax.imageio.ImageIO;
 
 import de.selbi.colorfetch.data.ColorFetchResult;
 
@@ -20,24 +17,11 @@ public interface ColorProvider {
    * manage to find two colors meeting the minimum requirement at all, WHITE is
    * returned for any blank ones.
    *
-   * @param imageUri the URL of the image
+   * @param img the preloaded BufferedImage
    * @return a ColorFetchResult with the two result colors
    * (full white for fallback cases)
    * @throws IOException when the image couldn't be parsed for any reason
    */
-  ColorFetchResult getDominantColorFromImageUrl(URL imageUri) throws IOException;
+  ColorFetchResult getColorFetchResultFromBufferedImage(BufferedImage img) throws IOException;
 
-  /**
-   * Convert the input image URL to a BufferedImage (download it)
-   * @param imageUrl the url to the image
-   * @return the downloaded BufferedImage
-   * @throws IOException when the image couldn't be parsed for any reason
-   */
-  default BufferedImage getBufferedImage(String imageUrl) throws IOException {
-    BufferedImage img = ImageIO.read(new URL(imageUrl));
-    if (img == null) {
-      throw new IOException("Unable to parse image");
-    }
-    return img;
-  }
 }
