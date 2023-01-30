@@ -39,7 +39,9 @@ http://localhost:8999/color?url=https://i.scdn.co/image/ab67616d0000b2738b2c4202
 ```
 
 Currently, two strategies are supported:
+
 ![Comparison of Strategies](https://i.imgur.com/wuXAbnH.png)
+*Picture: AURORA – Infections Of A Different Kind – Step 1 (© 2018 Universal Music)*
 
 ### `color_thief` (Default)
 [Color Thief](https://lokeshdhakar.com/projects/color-thief) is a simple library that determines the most dominant colors using pixel buckets. A lot of fine-tuning was done for ColorFetch, so it's the default strategy.
