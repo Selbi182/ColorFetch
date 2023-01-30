@@ -39,9 +39,14 @@ http://localhost:8999/color?url=https://i.scdn.co/image/ab67616d0000b2738b2c4202
 ```
 
 Currently, two strategies are supported:
+![Comparison of Strategies](https://i.imgur.com/wuXAbnH.png)
 
 ### `color_thief` (Default)
-[Color Thief](https://lokeshdhakar.com/projects/color-thief) is a simple library that determines the most dominant colors using pixel buckets. A lot of fine-tuning was done for ColorFetch, so it's the default (and recommended) strategy.
+[Color Thief](https://lokeshdhakar.com/projects/color-thief) is a simple library that determines the most dominant colors using pixel buckets. A lot of fine-tuning was done for ColorFetch, so it's the default strategy.
+
+The primary color favors light colors while the secondary one favors saturated ones. An example usage would be to take the primary color as text color, while taking the secondary one as background color.
 
 ### `android_palette`
 The [Android Palette API](https://developer.android.com/develop/ui/views/graphics/palette-colors) is a powerful but complex tool to determine dominant colors and finds common use on any modern Android device. It works with what are called Swatches. Depending on your use case, you might get better results with this strategy. Your best bet is to try it yourself!
+
+Compared to the Color Thief, the resulting primary and secondary colors are pretty much inverted. The primary color is saturated while the secondary one is light.
