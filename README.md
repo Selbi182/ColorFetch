@@ -11,7 +11,7 @@ From the running service, the colors can simply be fetched by sending a `GET` re
 http://localhost:8999/color?url=https://i.scdn.co/image/ab67616d0000b2738b2c42026277efc3e058855b
 ```
 
-The result is return as JSON object in the following format (RGB format 0-255 per channel, average brightness 0.0-1.0):
+The result is returned as JSON object in the following format (RGB format 0-255 per channel, average brightness 0.0-1.0):
 
 ```json
 {
@@ -28,7 +28,7 @@ The result is return as JSON object in the following format (RGB format 0-255 pe
   "averageBrightness": 0.5976384398815804
 }
 ```
-Note: Colors are indefinitely cached per URL (in-memory).
+Note: Colors are cached per URL for one week.
 
 ## Strategy
 
