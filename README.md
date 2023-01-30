@@ -28,15 +28,11 @@ The result is returned as JSON object in the following format (RGB format 0-255 
   "averageBrightness": 0.5976384398815804
 }
 ```
-Note: Colors are cached per URL for one week.
+Note: Results are cached per URL (and whatever options are set, see below) for 30 days.
 
 ## Strategy
 
-The specific strategy to determine the colors can be set with an optional paramter in the URL request:
-
-```
-http://localhost:8999/color?url=https://i.scdn.co/image/ab67616d0000b2738b2c42026277efc3e058855b&strategy=color_thief
-```
+The specific strategy to determine the colors can be set with an optional paramter in the URL request, like so: `&strategy=color_thief`
 
 Currently, two strategies are supported:
 
@@ -52,3 +48,8 @@ The primary color favors light colors while the secondary one favors saturated o
 The [Android Palette API](https://developer.android.com/develop/ui/views/graphics/palette-colors) is a powerful but complex tool to determine dominant colors and finds common use on any modern Android device. It works with what are called Swatches. Depending on your use case, you might get better results with this strategy. Your best bet is to try it yourself!
 
 Compared to the Color Thief, the resulting primary and secondary colors are pretty much inverted. The primary color is saturated while the secondary one is light.
+
+## Normalization
+By default, the resulting colors are normalized, meaning they will get increased to their *maximum possible brightness*. This is done for readability purposes.
+
+To disable this, simply add `&normalize=false` to the URL path. This will return the dominant colors exactly as they appear in the provided image.
