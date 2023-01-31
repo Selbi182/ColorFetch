@@ -9,8 +9,8 @@ public interface ColorProvider {
   /**
    * Returns an approximation of the two most dominant colors from an image URL.
    * The primary color is intended for the text and icons,
-   * whereas the secondary one is to be used as the background overlay.<br/>
-   * <br/>
+   * whereas the secondary one is to be used as the background overlay.
+   *
    * The algorithm favors bright, vibrant colors over dull ones and will
    * completely ignore colors that fall below a certain threshold in regard to
    * pixel population or brightness. For particularly dull images that don't even

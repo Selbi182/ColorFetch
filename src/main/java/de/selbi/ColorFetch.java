@@ -8,6 +8,7 @@ public class ColorFetch {
 
   /**
    * Main entry point of the bot
+   * @param args ignore, no args are available
    */
   public static void main(String[] args) {
     SpringApplication.run(ColorFetch.class, args);
