@@ -31,7 +31,7 @@ public class ColorResultCache {
 
   private final LoadingCache<ColorCacheKey, Optional<ColorFetchResult>> colorCache;
 
-  ColorResultCache(ColorThiefColorProvider colorThiefColorProvider, AndroidPaletteColorProvider androidPaletteColorProvider) {
+  public ColorResultCache(ColorThiefColorProvider colorThiefColorProvider, AndroidPaletteColorProvider androidPaletteColorProvider) {
     this.colorCache = CacheBuilder.newBuilder()
         .maximumSize(MAX_CACHE_ENTRIES)
         .expireAfterAccess(EXPIRATION_DAYS, TimeUnit.DAYS)

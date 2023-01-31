@@ -1,6 +1,7 @@
 package de.selbi.colorfetch.data;
 
 import java.awt.Color;
+import java.util.Objects;
 
 public class ColorFetchResult {
   public static final ColorFetchResult FALLBACK = new ColorFetchResult(RGB.DEFAULT_RGB, RGB.DEFAULT_RGB, 0.5);
@@ -90,5 +91,35 @@ public class ColorFetchResult {
     public String toString() {
       return String.format("R %d / G %d / B %d", r, g, b);
     }
+
+    @Override
+    public boolean equals(Object o) {
+      if (this == o)
+        return true;
+      if (!(o instanceof RGB))
+        return false;
+      RGB rgb = (RGB) o;
+      return r == rgb.r && g == rgb.g && b == rgb.b;
+    }
+
+    @Override
+    public int hashCode() {
+      return Objects.hash(r, g, b);
+    }
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o)
+      return true;
+    if (!(o instanceof ColorFetchResult))
+      return false;
+    ColorFetchResult that = (ColorFetchResult) o;
+    return Double.compare(that.averageBrightness, averageBrightness) == 0 && primary.equals(that.primary) && secondary.equals(that.secondary);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(primary, secondary, averageBrightness);
   }
 }
