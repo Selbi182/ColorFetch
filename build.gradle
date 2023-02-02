@@ -32,7 +32,7 @@ repositories {
 }
 
 group = 'de.selbi'
-version = '1.0.4'
+version = '1.0.5'
 
 java {
     withJavadocJar()
@@ -83,6 +83,6 @@ publishing {
 dependencies {
     implementation "org.springframework.boot:spring-boot-starter-web:$springVersion"
     implementation 'de.androidpit:color-thief:1.1.2'
-    implementation 'com.google.guava:guava:31.1-jre'
     implementation 'com.github.trickl:palette:0.1.1'
+    implementation 'com.google.guava:guava:31.1-jre'
 }

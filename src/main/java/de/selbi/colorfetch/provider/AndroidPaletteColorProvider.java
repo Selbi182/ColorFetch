@@ -30,9 +30,14 @@ public class AndroidPaletteColorProvider implements ColorProvider {
 
   @Override
   public ColorFetchResult getColorFetchResultFromBufferedImage(BufferedImage img) {
-    Palette palette = Palette.from(img).generate();
-    List<Color> bestSwatches = getBestSwatch(palette, false);
-    return ColorFetchResult.of(bestSwatches.get(0), bestSwatches.get(1), 0.5);
+    try {
+      Palette palette = Palette.from(img).generate();
+      List<Color> bestSwatches = getBestSwatch(palette, false);
+      return ColorFetchResult.of(bestSwatches.get(0), bestSwatches.get(1), 0.5);
+    } catch (RuntimeException e) {
+      // This happens very rarely with monochrome images due to a bug inside the implementation of the Android Palette API
+      return ColorFetchResult.FALLBACK;
+    }
   }
 
   private final Map<Target, Integer> WEIGHTED_SWATCHES = Map.of(
