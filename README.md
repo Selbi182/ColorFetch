@@ -50,6 +50,10 @@ The [Android Palette API](https://developer.android.com/develop/ui/views/graphic
 Compared to the Color Thief, the resulting primary and secondary colors are pretty much inverted. The primary color is saturated while the secondary one is light.
 
 ## Normalization
-By default, the resulting colors are normalized, meaning they will get increased to their *maximum possible brightness*. This is done for readability purposes.
+Using the optional URL parameter `normalize`, the result colors can optionally be normalized to a given minimum brightness:
 
-To disable this, simply add `&normalize=false` to the URL path. This will return the dominant colors exactly as they appear in the provided image.
+**Examples:**
+* `normalize=1.0`: Increase the resulting colors to their *maximum possible brightness* (255). Best suited to preserve readability for bright text colors.
+* `normalize=0.5`: If the resulting colors are below 50% brightness, increase them to that level. If they're already over half brightness, leave them as is.
+
+If the parameter is omitted, return the dominant colors exactly as they appear in the provided image, without any adjustments. This has the same effect as `normalize=0.0`.

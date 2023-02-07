@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.google.common.base.Preconditions;
+
 import de.selbi.colorfetch.cache.ColorCacheKey;
 import de.selbi.colorfetch.cache.ColorResultCache;
 import de.selbi.colorfetch.data.ColorFetchResult;
@@ -27,7 +29,7 @@ public class ColorFetchController {
   public ResponseEntity<ColorFetchResult> getColorForImageUrl(
       @RequestParam String url,
       @RequestParam(defaultValue = "color_thief") String strategy,
-      @RequestParam(defaultValue = "true") boolean normalize)
+      @RequestParam(required = false) Float normalize)
       throws IllegalArgumentException, ExecutionException {
     ColorCacheKey.Strategy strategyEnumValue;
     switch (strategy) {
@@ -39,6 +41,10 @@ public class ColorFetchController {
         break;
       default:
         throw new IllegalArgumentException(strategy + " is an invalid strategy. Allowed strategies are: color_thief, android_palette");
+    }
+
+    if (normalize != null) {
+      Preconditions.checkArgument(normalize >= 0.0 && normalize <= 1.0, "'normalize' must be between 0.0 and 1.0");
     }
 
     ColorCacheKey colorCacheKey = ColorCacheKey.of(url, strategyEnumValue, normalize);

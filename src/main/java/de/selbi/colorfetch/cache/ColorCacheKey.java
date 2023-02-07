@@ -1,6 +1,6 @@
 package de.selbi.colorfetch.cache;
 
-import java.util.Objects;
+import com.google.common.base.Objects;
 
 public class ColorCacheKey {
   public enum Strategy {
@@ -10,16 +10,16 @@ public class ColorCacheKey {
 
   private final String url;
   private final Strategy strategy;
-  private final boolean normalized;
+  private final Float normalize;
 
-  private ColorCacheKey(String url, Strategy strategy, boolean normalized) {
+  private ColorCacheKey(String url, Strategy strategy, Float normalize) {
     this.url = url;
     this.strategy = strategy;
-    this.normalized = normalized;
+    this.normalize = normalize;
   }
 
-  public static ColorCacheKey of(String url, Strategy strategy, boolean normalized) {
-    return new ColorCacheKey(url, strategy, normalized);
+  public static ColorCacheKey of(String url, Strategy strategy, Float normalize) {
+    return new ColorCacheKey(url, strategy, normalize);
   }
 
   public String getUrl() {
@@ -30,22 +30,22 @@ public class ColorCacheKey {
     return strategy;
   }
 
-  public boolean isNormalized() {
-    return normalized;
+  public Float getNormalize() {
+    return normalize;
   }
 
   @Override
   public boolean equals(Object o) {
     if (this == o)
       return true;
-    if (o == null || getClass() != o.getClass())
+    if (!(o instanceof ColorCacheKey))
       return false;
     ColorCacheKey that = (ColorCacheKey) o;
-    return normalized == that.normalized && Objects.equals(url, that.url) && strategy == that.strategy;
+    return Objects.equal(url, that.url) && strategy == that.strategy && Objects.equal(normalize, that.normalize);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(url, strategy, normalized);
+    return Objects.hashCode(url, strategy, normalize);
   }
 }

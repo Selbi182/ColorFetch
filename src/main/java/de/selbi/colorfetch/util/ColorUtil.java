@@ -66,14 +66,18 @@ public class ColorUtil {
    * the brightness to the maximum.
    *
    * @param color the color
+   * @param minimumBrightness the minimum brightness to set the color to
    * @return a new, normalized RBG object
    */
-  public static RGB normalizeForReadability(RGB color) {
+  public static RGB normalize(RGB color, float minimumBrightness) {
     int r = color.getR();
     int g = color.getG();
     int b = color.getB();
     float[] hsb = rgbToHsb(r, g, b);
-    hsb[2] = 1.0f; // Set brightness to max
+    float currentBrightness = hsb[2];
+    if (currentBrightness < minimumBrightness) {
+      hsb[2] = minimumBrightness;
+    }
     return RGB.of(hsbToRgb(hsb));
   }
 
@@ -94,9 +98,10 @@ public class ColorUtil {
    * Convenience method to normalize all colors for readability
    *
    * @param colors the colors
+   * @param minimumBrightness the optional minimum brightness
    */
-  public static void normalizeAllForReadability(ColorFetchResult colors) {
-    colors.setPrimary(normalizeForReadability(colors.getPrimary()));
-    colors.setSecondary(normalizeForReadability(colors.getSecondary()));
+  public static void normalizeColorFetchResult(ColorFetchResult colors, float minimumBrightness) {
+    colors.setPrimary(ColorUtil.normalize(colors.getPrimary(), minimumBrightness));
+    colors.setSecondary(ColorUtil.normalize(colors.getSecondary(), minimumBrightness));
   }
 }
