@@ -70,15 +70,18 @@ public class ColorUtil {
    * @return a new, normalized RBG object
    */
   public static RGB normalize(RGB color, float minimumBrightness) {
-    int r = color.getR();
-    int g = color.getG();
-    int b = color.getB();
-    float[] hsb = rgbToHsb(r, g, b);
-    float currentBrightness = hsb[2];
-    if (currentBrightness < minimumBrightness) {
-      hsb[2] = minimumBrightness;
+    if (minimumBrightness > 0) {
+      int r = color.getR();
+      int g = color.getG();
+      int b = color.getB();
+      float[] hsb = rgbToHsb(r, g, b);
+      float currentBrightness = hsb[2];
+      if (currentBrightness < minimumBrightness) {
+        hsb[2] = minimumBrightness;
+      }
+      return RGB.of(hsbToRgb(hsb));
     }
-    return RGB.of(hsbToRgb(hsb));
+    return color;
   }
 
   /**

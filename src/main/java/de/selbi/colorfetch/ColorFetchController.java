@@ -29,7 +29,7 @@ public class ColorFetchController {
   public ResponseEntity<ColorFetchResult> getColorForImageUrl(
       @RequestParam String url,
       @RequestParam(defaultValue = "color_thief") String strategy,
-      @RequestParam(required = false) Float normalize)
+      @RequestParam(defaultValue = "0.0") String normalize)
       throws IllegalArgumentException, ExecutionException {
     ColorCacheKey.Strategy strategyEnumValue;
     switch (strategy) {
@@ -43,11 +43,10 @@ public class ColorFetchController {
         throw new IllegalArgumentException(strategy + " is an invalid strategy. Allowed strategies are: color_thief, android_palette");
     }
 
-    if (normalize != null) {
-      Preconditions.checkArgument(normalize >= 0.0 && normalize <= 1.0, "'normalize' must be between 0.0 and 1.0");
-    }
+    float normalizeFloat = Float.parseFloat(normalize);
+    Preconditions.checkArgument(normalizeFloat >= 0.0 && normalizeFloat <= 1.0, "'normalize' must be between 0.0 and 1.0");
 
-    ColorCacheKey colorCacheKey = ColorCacheKey.of(url, strategyEnumValue, normalize);
+    ColorCacheKey colorCacheKey = ColorCacheKey.of(url, strategyEnumValue, normalizeFloat);
     ColorFetchResult colorFetchResult = colorResultCache.getColor(colorCacheKey);
     return ResponseEntity.of(Optional.of(colorFetchResult));
   }

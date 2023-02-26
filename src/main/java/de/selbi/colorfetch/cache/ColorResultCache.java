@@ -110,9 +110,7 @@ public class ColorResultCache {
           throw new IllegalStateException("Unexpected value: " + colorCacheKey.getStrategy());
         }
 
-        if (colorCacheKey.getNormalize() != null) {
-          ColorUtil.normalizeColorFetchResult(colorFetchResult, colorCacheKey.getNormalize());
-        }
+        ColorUtil.normalizeColorFetchResult(colorFetchResult, colorCacheKey.getNormalize());
 
         return Optional.of(colorFetchResult);
       } catch (IOException e) {

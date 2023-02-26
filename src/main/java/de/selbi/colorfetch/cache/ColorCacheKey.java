@@ -10,15 +10,15 @@ public class ColorCacheKey {
 
   private final String url;
   private final Strategy strategy;
-  private final Float normalize;
+  private final float normalize;
 
-  private ColorCacheKey(String url, Strategy strategy, Float normalize) {
+  private ColorCacheKey(String url, Strategy strategy, float normalize) {
     this.url = url;
     this.strategy = strategy;
     this.normalize = normalize;
   }
 
-  public static ColorCacheKey of(String url, Strategy strategy, Float normalize) {
+  public static ColorCacheKey of(String url, Strategy strategy, float normalize) {
     return new ColorCacheKey(url, strategy, normalize);
   }
 
@@ -30,7 +30,7 @@ public class ColorCacheKey {
     return strategy;
   }
 
-  public Float getNormalize() {
+  public float getNormalize() {
     return normalize;
   }
 
