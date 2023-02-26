@@ -1,6 +1,6 @@
 package de.selbi.colorfetch.cache;
 
-import com.google.common.base.Objects;
+import java.util.Objects;
 
 public class ColorCacheKey {
   public enum Strategy {
@@ -41,11 +41,11 @@ public class ColorCacheKey {
     if (!(o instanceof ColorCacheKey))
       return false;
     ColorCacheKey that = (ColorCacheKey) o;
-    return Objects.equal(url, that.url) && strategy == that.strategy && Objects.equal(normalize, that.normalize);
+    return Float.compare(that.normalize, normalize) == 0 && Objects.equals(url, that.url) && strategy == that.strategy;
   }
 
   @Override
   public int hashCode() {
-    return Objects.hashCode(url, strategy, normalize);
+    return Objects.hash(url, strategy, normalize);
   }
 }

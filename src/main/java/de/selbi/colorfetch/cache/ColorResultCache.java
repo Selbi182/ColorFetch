@@ -6,17 +6,12 @@ import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URL;
 import java.util.Objects;
-import java.util.Optional;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
 
 import javax.imageio.ImageIO;
 
+import org.cache2k.Cache;
+import org.cache2k.Cache2kBuilder;
 import org.springframework.stereotype.Component;
-
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
 
 import de.selbi.colorfetch.data.ColorFetchResult;
 import de.selbi.colorfetch.provider.AndroidPaletteColorProvider;
@@ -26,16 +21,22 @@ import de.selbi.colorfetch.util.ColorUtil;
 @Component
 public class ColorResultCache {
   private static final long MAX_CACHE_ENTRIES = 50000;
-  private static final long EXPIRATION_DAYS = 30;
-  private static final long MAX_FILE_SIZE = 10 * 1024 * 1024;
+  private static final long MAX_FILE_SIZE = 10 * (2 << 19);
 
-  private final LoadingCache<ColorCacheKey, Optional<ColorFetchResult>> colorCache;
+  private final ColorThiefColorProvider colorThiefColorProvider;
+  private final AndroidPaletteColorProvider androidPaletteColorProvider;
+
+  private final Cache<ColorCacheKey, ColorFetchResult> colorCache;
 
   public ColorResultCache(ColorThiefColorProvider colorThiefColorProvider, AndroidPaletteColorProvider androidPaletteColorProvider) {
-    this.colorCache = CacheBuilder.newBuilder()
-        .maximumSize(MAX_CACHE_ENTRIES)
-        .expireAfterAccess(EXPIRATION_DAYS, TimeUnit.DAYS)
-        .build(createCache(colorThiefColorProvider, androidPaletteColorProvider));
+    this.colorThiefColorProvider = colorThiefColorProvider;
+    this.androidPaletteColorProvider = androidPaletteColorProvider;
+
+    this.colorCache = Cache2kBuilder.of(ColorCacheKey.class, ColorFetchResult.class)
+      .loader(this::getColorFetchResult)
+      .eternal(true)
+      .entryCapacity(MAX_CACHE_ENTRIES)
+      .build();
   }
 
   /**
@@ -44,11 +45,9 @@ public class ColorResultCache {
    *
    * @param colorCacheKey the given color cache key
    * @return the color fetch result
-   * @throws ExecutionException if an exception occurred inside the cache
    */
-  public ColorFetchResult getColor(ColorCacheKey colorCacheKey) throws ExecutionException {
-    return colorCache.get(colorCacheKey)
-        .orElse(ColorFetchResult.FALLBACK);
+  public ColorFetchResult getColor(ColorCacheKey colorCacheKey) {
+    return colorCache.get(colorCacheKey);
   }
 
   //////////////////
@@ -91,15 +90,14 @@ public class ColorResultCache {
 
   //////////////////
 
-  private CacheLoader<ColorCacheKey, Optional<ColorFetchResult>> createCache(ColorThiefColorProvider colorThiefColorProvider, AndroidPaletteColorProvider androidPaletteColorProvider) {
-    return CacheLoader.from(colorCacheKey -> {
-      try {
-        String urlString = Objects.requireNonNull(colorCacheKey).getUrl();
-        URL url = openValidUrl(urlString);
-        BufferedImage bufferedImage = getBufferedImage(url);
+  private ColorFetchResult getColorFetchResult(ColorCacheKey colorCacheKey) {
+    try {
+      String urlString = Objects.requireNonNull(colorCacheKey).getUrl();
+      URL url = openValidUrl(urlString);
+      BufferedImage bufferedImage = getBufferedImage(url);
 
-        ColorFetchResult colorFetchResult;
-        switch (colorCacheKey.getStrategy()) {
+      ColorFetchResult colorFetchResult;
+      switch (colorCacheKey.getStrategy()) {
         case COLOR_THIEF:
           colorFetchResult = colorThiefColorProvider.getColorFetchResultFromBufferedImage(bufferedImage);
           break;
@@ -108,14 +106,10 @@ public class ColorResultCache {
           break;
         default:
           throw new IllegalStateException("Unexpected value: " + colorCacheKey.getStrategy());
-        }
-
-        ColorUtil.normalizeColorFetchResult(colorFetchResult, colorCacheKey.getNormalize());
-
-        return Optional.of(colorFetchResult);
-      } catch (IOException e) {
-        return Optional.empty();
       }
-    });
+      return ColorUtil.normalizeColorFetchResult(colorFetchResult, colorCacheKey.getNormalize());
+    } catch (IOException e) {
+      return ColorFetchResult.FALLBACK;
+    }
   }
 }

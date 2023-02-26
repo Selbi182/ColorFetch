@@ -102,9 +102,11 @@ public class ColorUtil {
    *
    * @param colors the colors
    * @param minimumBrightness the optional minimum brightness
+   * @return the updated color
    */
-  public static void normalizeColorFetchResult(ColorFetchResult colors, float minimumBrightness) {
+  public static ColorFetchResult normalizeColorFetchResult(ColorFetchResult colors, float minimumBrightness) {
     colors.setPrimary(ColorUtil.normalize(colors.getPrimary(), minimumBrightness));
     colors.setSecondary(ColorUtil.normalize(colors.getSecondary(), minimumBrightness));
+    return colors;
   }
 }
