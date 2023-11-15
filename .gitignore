@@ -43,3 +43,4 @@ spotifybot.properties
 custom_images.txt
 log.txt
 deploy.sh
+/gradle.properties
